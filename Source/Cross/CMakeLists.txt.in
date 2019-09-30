@@ -1,0 +1,43 @@
+## This template is used to generate the CMakeFiles.txt for a Cpp Game Project
+project(CppGame)
+
+# Define source files
+file (GLOB GAME_SOURCE_FILES Source/*.cpp Source/*.h)
+
+if (WIN32)
+    add_definitions(-DCROSS_WIN32_CONSOLE)
+endif()
+add_compile_definitions(CROSS_STATIC_DEFINE)
+
+include_directories(${CPP_GAME_INCLUDE_DIR})
+
+add_library(GameLib ${GAME_SOURCE_FILES})
+target_link_libraries(GameLib PUBLIC ${CPP_GAME_LIB_DIR})
+
+add_executable(CppGame Game.h Game.cpp)
+target_link_libraries(CppGame GameLib)
+
+if (MSVC)
+    target_compile_options(CppGame PUBLIC $<$<CONFIG:Debug>:${CROSS_MSVC_RUNTIME}d> $<$<NOT:$<CONFIG:Debug>>:${CROSS_MSVC_RUNTIME}>)
+endif ()
+
+#[[
+# Copy CrossTool to Artifacts
+add_custom_command( TARGET FeatureExamples POST_BUILD
+                    COMMAND "${CMAKE_COMMAND}"
+                    ARGS -E make_directory \"${CROSS_SOURCE_DIR}/Artifacts/Examples/CPlusPlus\"
+                    COMMAND "${CMAKE_COMMAND}"
+                    ARGS -E copy_if_different \"$<TARGET_FILE:FeatureExamples>\" \"${CROSS_SOURCE_DIR}/Artifacts/Examples/CPlusPlus/\"
+                    COMMENT "Copying FeatureExamples to Build Artifacts" )
+
+if (WIN32)
+
+  # pre-Windows 8 can't count on D3DCompiler_47.dll being on system
+  add_custom_command (TARGET CppGame POST_BUILD
+  COMMAND ${CMAKE_COMMAND}
+  ARGS -E copy_if_different \"${D3DCOMPILER_47_DLL}\" \"$<TARGET_FILE_DIR:FeatureExamples>/D3DCompiler_47.dll\"
+  COMMAND ${CMAKE_COMMAND}
+  ARGS -E copy_if_different \"${D3DCOMPILER_47_DLL}\" \"${CROSS_SOURCE_DIR}/Artifacts/Examples/CPlusPlus/D3DCompiler_47.dll\" )
+
+endif(WIN32)
+]]

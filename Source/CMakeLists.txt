@@ -1,0 +1,31 @@
+option(CROSS_DATABASE_SQLITE "Enable SQLite database subsystem" OFF)
+option(CROSS_DATABASE_ODBC "Enable ODBC database subsystem" OFF)
+option(CROSS_IK "Enable inverse kinematics subsystem" OFF)
+option(CROSS_PROFILING "Enable profiler" OFF)
+#option(CROSS_PROFILING "Enable profiler" ${CROSS_RELEASE_OFF})
+
+if (WIN32)
+    option (CROSS_D3D9 "Use DirectX 9" OFF)
+    option (CROSS_OPENGL "Use OpenGL" OFF)
+    if (NOT CROSS_D3D9 AND NOT CROSS_OPENGL)
+        set (CROSS_D3D11 ON)
+    endif ()
+endif ()
+
+if (CROSS_OPENGL)
+    message(STATUS "Renderer: OpenGL")
+elseif (CROSS_D3D11)
+    message(STATUS "Renderer: D3D11")
+elseif (CROSS_D3D9)
+    message(STATUS "Renderer: D3D9")
+endif ()
+
+add_subdirectory(ThirdParty)
+add_subdirectory(Cross)
+
+if (CROSS_DESKTOP)
+    add_subdirectory(Tools)
+    add_subdirectory(ToolCore)
+endif ()
+
+include(CrossDocList)
