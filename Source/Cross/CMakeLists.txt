@@ -226,15 +226,3 @@ endif ()
 if (UNIX OR MINGW)
     target_compile_options(Cross PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-std=gnu++11>)
 endif ()
-
-
-# TODO: Verify why the cpp game template is resulting in a Link error, for now we are just build the games in the CppGame folder with the engine. Check the root CMakeLists.txt
-# Include headers to be used in a Cpp game project
-set(CPP_GAME_INCLUDE_DIR ${CROSS_SOURCE_DIR}/Source
-		                 ${CROSS_SOURCE_DIR}/Source/ThirdParty)
-
-# Cross.lib to be used in a Cpp game project
-set(CPP_GAME_LIB_DIR ${PROJECT_BINARY_DIR}/Source/Cross/Cross.lib)
-
-# Now we configure the cpp game template with the correct include and lib directories
-configure_file(CMakeLists.txt.in ${CROSS_SOURCE_DIR}/Data/CrossEditor/ProjectTemplates/Project3D/Cpp/CMakeLists.txt)
