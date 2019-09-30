@@ -30,7 +30,7 @@ if (HAVE_STDINT_H)
 endif ()
 
 # Define generated source files
-if (MSVC AND ATOMIC_64BIT)
+if (MSVC AND CROSS_64BIT)
     enable_language (ASM_MASM)
     # Commented out due to cmake bug
     #set (ASM_FILES src/masm-x64.asm)

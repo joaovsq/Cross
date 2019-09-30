@@ -93,7 +93,7 @@ set(LT_VERSION "${LT_MAJOR}.${LT_AGE}.${LT_REVISION}")
 # Urho3D - commented out LIBRARY_OUTPUT_DIRECTORY configuration so that it does not mess up with our global configuration setup
 # Check for 64 or 32 bit
 # Urho3D - bug fix - using CMAKE_SIZEOF_VOID_P is not accurate in a situation where a multilib-capable compiler is chosen and user has opted to use non-native ABI; instead using ATOMIC_64BIT build option as it also captures the user intention
-if(ATOMIC_64BIT)
+if(CROSS_64BIT)
   set(ARCH_64 TRUE)
   set(PROCESSOR_ARCH "x64")
 else()
@@ -316,14 +316,14 @@ endforeach()
 dep_option(VIDEO_COCOA         "Use Cocoa video driver" ON "APPLE AND NOT IOS AND NOT TVOS" OFF)
 # Urho3D - only make DIRECTX option available on Windows platform when ATOMIC_OPENGL is enabled, i.e. DIRECTX variable must always be ON (not an option) when ATOMIC_OPENGL is disabled because in this case it must depend on Direct3D which is a component of DirectX
 if (WINDOWS)
-  dep_option(DIRECTX           "Use DirectX for Windows audio/video" ON ATOMIC_OPENGL ON)
+  dep_option(DIRECTX           "Use DirectX for Windows audio/video" ON CROSS_OPENGL ON)
 else ()
   set (DIRECTX OFF)  # Make it off explicitly when not targeting Windows platform, just in case user passes it in accidentally via CLI
 endif ()
 # Urho3D - commented out RENDER_D3D as an option to avoid potential conflict with our ATOMIC_OPENGL and ATOMIC_D3D11 build options on Windows platform
 #          Instead just initialize the variable according to our build options; Urho3D also by default disables the SDL renderer subsystem
 if (WINDOWS)
-  if (ATOMIC_OPENGL)
+  if (CROSS_OPENGL)
     set (RENDER_D3D FALSE)
   else ()
     set (RENDER_D3D TRUE)
@@ -991,7 +991,7 @@ elseif(UNIX)    # Urho3D - at this point both UNIX and UNIX_SYS should be equiva
     # Urho3D - bug fix - dbus/dbus.h is installed under path suffix 'dbus-1.0', so the following find_path() is needed even when not cross-compiling
     find_path (DBUS_H_INCLUDE_DIRS NAMES dbus/dbus.h PATH_SUFFIXES dbus-1.0)
     # Cater for both multilib and multiarch, native and cross-compiling build
-    if (ATOMIC_64BIT)
+    if (CROSS_64BIT)
       set (DBUS_INC_SEARCH_PATH /usr/lib64/dbus-1.0/include)
     else ()
       set (DBUS_INC_SEARCH_PATH /usr/lib/dbus-1.0/include)
@@ -1006,7 +1006,7 @@ elseif(UNIX)    # Urho3D - at this point both UNIX and UNIX_SYS should be equiva
     # Urho3D - bug fix - ibus.h is installed under path suffix 'ibus-1.0', so the following find_path() is needed even when not cross-compiling
     find_path (IBUS_H_INCLUDE_DIRS NAMES ibus.h PATH_SUFFIXES ibus-1.0)
     find_path (GLIB_H_INCLUDE_DIRS NAMES glib.h PATH_SUFFIXES glib-2.0)
-    if (ATOMIC_64BIT)
+    if (CROSS_64BIT)
       set (GLIB_INC_SEARCH_PATH /usr/lib64/glib-2.0/include)
     else ()
       set (GLIB_INC_SEARCH_PATH /usr/lib/glib-2.0/include)
