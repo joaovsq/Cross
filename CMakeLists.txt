@@ -37,19 +37,5 @@ endif ()
 
 add_subdirectory(Source)
 
-if (CROSS_DESKTOP AND CROSS_DEV_BUILD)
-	
-	# This subdirectory is specific to the cpp games, using the engine as a library
-	# add_subdirectory(Submodules/CppGames)
-
-	#[[    if (NOT DEFINED CROSS_CPLUSPLUS_EXAMPLES)
-        set(CROSS_CPLUSPLUS_EXAMPLES 1)
-    endif ()
-    if (CROSS_CPLUSPLUS_EXAMPLES)
-        initialize_submodule(${CROSS_SOURCE_DIR}/Submodules/CrossExamples CROSS_CPLUSPLUS_EXAMPLES)
-        if (CROSS_CPLUSPLUS_EXAMPLES)
-            add_subdirectory(Submodules/CrossExamples/FeatureExamples/CPlusPlus)
-        endif ()
-    endif ()
-	]]
-endif ()
+# This subdirectory is specific to the cpp games, using the engine as a library
+add_subdirectory(Games)
