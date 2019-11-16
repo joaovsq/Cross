@@ -702,11 +702,6 @@ template <> Audio* Object::GetSubsystem<Audio>() const
     return context_->audio_;
 }
 
-template <> UI* Object::GetSubsystem<UI>() const
-{
-    return context_->ui_;
-}
-
 template <> SystemUI* Object::GetSubsystem<SystemUI>() const
 {
     return context_->systemUi_;

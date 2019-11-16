@@ -45,6 +45,8 @@
 
 // CROSS BEGIN
 #include "../Resource/XMLFile.h"
+#include "../UI/SystemUI/SystemUI.h"
+#include "../UI/SystemUI/Console.h"
 // CROSS END
 
 #ifdef CROSS_NAVIGATION
@@ -388,6 +390,12 @@ bool Engine::Initialize(const VariantMap& parameters)
 #endif
 
     // CROSS BEGIN
+	if (!headless_)
+	{
+		context_->RegisterSubsystem(new SystemUI(context_));
+		context_->systemUi_ = context_->GetSubsystem<SystemUI>();
+		context_->console_ = context_->GetSubsystem<Console>();
+	}
     //context_->metrics_ = context_->GetSubsystem<Metrics>();
     // CROSS END
 
