@@ -22,6 +22,7 @@ endif ()
 
 add_subdirectory(ThirdParty)
 add_subdirectory(Cross)
+add_subdirectory(Editor)
 
 if (CROSS_DESKTOP)
     add_subdirectory(Tools)
