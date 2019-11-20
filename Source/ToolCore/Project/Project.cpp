@@ -42,15 +42,15 @@ namespace ToolCore
 {
 
 Project::Project(Context* context) :
-    Object(context),
-    loading_(false),
-    dirty_(false)
+	Object(context),
+	loading_(false),
+	dirty_(false)
 {
-    version_ = "1.0.0";
+	version_ = "1.0.0";
 
-    projectSettings_ = new ProjectSettings(context_);
-    userPrefs_ = new ProjectUserPrefs(context_);
-    buildSettings_ = new ProjectBuildSettings(context_);    
+	projectSettings_ = new ProjectSettings(context_);
+	userPrefs_ = new ProjectUserPrefs(context_);
+	buildSettings_ = new ProjectBuildSettings(context_);
 }
 
 Project::~Project()
@@ -60,211 +60,211 @@ Project::~Project()
 
 void Project::SaveUserPrefs()
 {
-    String path = GetProjectPath() + "UserPrefs.json";
+	String path = GetProjectPath() + "UserPrefs.json";
 
-    userPrefs_->Save(path);
+	userPrefs_->Save(path);
 
 }
 
 bool Project::LoadUserPrefs()
 {
-    ToolSystem* tsystem = GetSubsystem<ToolSystem>();
-    ToolEnvironment* tenv = GetSubsystem<ToolEnvironment>();
+	ToolSystem* tsystem = GetSubsystem<ToolSystem>();
+	ToolEnvironment* tenv = GetSubsystem<ToolEnvironment>();
 
-    String path = GetProjectPath() + "UserPrefs.json";
+	String path = GetProjectPath() + "UserPrefs.json";
 
-    userPrefs_->Load(path);
+	userPrefs_->Load(path);
 
-    // If we're in CLI mode, the Build folder is always relative to project
-    if (tenv->GetCLI())
-    {
-        String path = GetPath(projectFilePath_) + "Build";
-        userPrefs_->SetLastBuildPath(path);
-    }
+	// If we're in CLI mode, the Build folder is always relative to project
+	if (tenv->GetCLI())
+	{
+		String path = GetPath(projectFilePath_) + "Build";
+		userPrefs_->SetLastBuildPath(path);
+	}
 
-    return true;
+	return true;
 }
 
 void Project::SaveBuildSettings()
 {
-    buildSettings_->Save(GetProjectPath() + "BuildSettings.json");
+	buildSettings_->Save(GetProjectPath() + "BuildSettings.json");
 }
 
 bool Project::LoadBuildSettings()
 {
-    buildSettings_->Load(GetProjectPath() + "BuildSettings.json");
-    return true;
+	buildSettings_->Load(GetProjectPath() + "BuildSettings.json");
+	return true;
 }
 
 bool Project::LoadProjectSettings()
 {
-    projectSettings_->Load(GetProjectPath() + "Settings/Project.json");
-    return true;
+	projectSettings_->Load(GetProjectPath() + "Settings/Project.json");
+	return true;
 }
 
 bool Project::GetSupportsPlatform(const String& platform) const
 {
-    return projectSettings_->GetSupportsPlatform(platform);
+	return projectSettings_->GetSupportsPlatform(platform);
 }
 
 bool Project::Load(const String& fullpath)
 {
-    loading_ = true;
+	loading_ = true;
 
-    if (fullpath.Contains(".cross")) {
+	if (fullpath.Contains(".cross")) {
 
-        projectPath_ = AddTrailingSlash(GetPath(fullpath));
-        projectFilePath_ = fullpath;
+		projectPath_ = AddTrailingSlash(GetPath(fullpath));
+		projectFilePath_ = fullpath;
 
-    }
-    else
-    {
-        projectPath_ = AddTrailingSlash(fullpath);
+	}
+	else
+	{
+		projectPath_ = AddTrailingSlash(fullpath);
 
-        FileSystem* fileSystem = GetSubsystem<FileSystem>();
-        StringVector results;
-        fileSystem->ScanDir(results, projectPath_, "*.cross", SCAN_FILES, false);
+		FileSystem* fileSystem = GetSubsystem<FileSystem>();
+		StringVector results;
+		fileSystem->ScanDir(results, projectPath_, "*.cross", SCAN_FILES, false);
 
-        if (!results.Size())
-        {
-            // no cross file, so use the parent path name
-            projectFilePath_ = projectPath_ + GetFileName(RemoveTrailingSlash(projectPath_)) + ".cross";
-        }
-        else
-        {
-            String result = projectPath_ + results[0];
+		if (!results.Size())
+		{
+			// no cross file, so use the parent path name
+			projectFilePath_ = projectPath_ + GetFileName(RemoveTrailingSlash(projectPath_)) + ".cross";
+		}
+		else
+		{
+			String result = projectPath_ + results[0];
 
-            if (results.Size() > 1)
-            {
-                // multiple *.cross files, use newest, and report
+			if (results.Size() > 1)
+			{
+				// multiple *.cross files, use newest, and report
 
-                unsigned newest = 0xFFFFFFFF;
+				unsigned newest = 0xFFFFFFFF;
 
-                for (unsigned i = 0; i < results.Size(); i++)
-                {
-                    String crossFilePath = projectPath_ + results[i];
+				for (unsigned i = 0; i < results.Size(); i++)
+				{
+					String crossFilePath = projectPath_ + results[i];
 
-                    unsigned modtime = fileSystem->GetLastModifiedTime(crossFilePath);
+					unsigned modtime = fileSystem->GetLastModifiedTime(crossFilePath);
 
-                    if (!modtime)
-                        continue;
+					if (!modtime)
+						continue;
 
-                    if (newest > modtime)
-                    {
-                        newest = modtime;
-                        result = crossFilePath;
-                    }
+					if (newest > modtime)
+					{
+						newest = modtime;
+						result = crossFilePath;
+					}
 
-                }
+				}
 
-                CROSS_LOGERRORF("Project::Load - Multiple .cross files found in project, selecting newest: %s", result.CString());
+				CROSS_LOGERRORF("Project::Load - Multiple .cross files found in project, selecting newest: %s", result.CString());
 
-            }
+			}
 
-            projectFilePath_ = result;
-        }
+			projectFilePath_ = result;
+		}
 
-    }
+	}
 
-    VariantMap data;
-    data[ProjectBeginLoad::P_PROJECTPATH] = projectFilePath_;
-    data[ProjectBeginLoad::P_PROJECT] = this;
-    SendEvent(E_PROJECTBEGINLOAD, data);
+	VariantMap data;
+	data[ProjectBeginLoad::P_PROJECTPATH] = projectFilePath_;
+	data[ProjectBeginLoad::P_PROJECT] = this;
+	SendEvent(E_PROJECTBEGINLOAD, data);
 
-    SharedPtr<ProjectFile> pfile(new ProjectFile(context_));
-    bool result = pfile->Load(this);
+	SharedPtr<ProjectFile> pfile(new ProjectFile(context_));
+	bool result = pfile->Load(this);
 
-    loading_ = false;
+	loading_ = false;
 
-    LoadProjectSettings();
-    LoadBuildSettings();
-    LoadUserPrefs();
+	LoadProjectSettings();
+	LoadBuildSettings();
+	LoadUserPrefs();
 
-    if ( true /*result*/) {
-        VariantMap data;
-        data[ProjectLoaded::P_PROJECTPATH] = projectFilePath_;
-        data[ProjectLoaded::P_PROJECT] = this;
-        data[ProjectLoaded::P_RESULT] = result;
-        SendEvent(E_PROJECTLOADED, data);
-    }
+	if (true /*result*/) {
+		VariantMap data;
+		data[ProjectLoaded::P_PROJECTPATH] = projectFilePath_;
+		data[ProjectLoaded::P_PROJECT] = this;
+		data[ProjectLoaded::P_RESULT] = result;
+		SendEvent(E_PROJECTLOADED, data);
+	}
 
-    return result;
+	return result;
 }
 
 String Project::GetBuildSettingsFullPath()
 {
-    String path = GetPath(projectFilePath_);
-    String filename = GetFileName(projectFilePath_);
-    String buildSettingsPath = path + filename + ".buildsettings";
-    return buildSettingsPath;
+	String path = GetPath(projectFilePath_);
+	String filename = GetFileName(projectFilePath_);
+	String buildSettingsPath = path + filename + ".buildsettings";
+	return buildSettingsPath;
 }
 
 String Project::GetUserPrefsFullPath()
 {
-    String path = GetPath(projectFilePath_);
-    String filename = GetFileName(projectFilePath_);
-    String prefsPath = path + filename + ".userprefs";
-    return prefsPath;
+	String path = GetPath(projectFilePath_);
+	String filename = GetFileName(projectFilePath_);
+	String prefsPath = path + filename + ".userprefs";
+	return prefsPath;
 }
 
 void Project::Save(const String& fullpath)
 {
-    SharedPtr<ProjectFile> pfile(new ProjectFile(context_));
-    pfile->Save(this);
-    dirty_ = false;
+	SharedPtr<ProjectFile> pfile(new ProjectFile(context_));
+	pfile->Save(this);
+	dirty_ = false;
 }
 
 bool Project::IsComponentsDirOrFile(const String& fullPath)
 {
-    String pathName;
-    String fileName;
-    String extension;
+	String pathName;
+	String fileName;
+	String extension;
 
-    SplitPath(fullPath, pathName, fileName, extension);
+	SplitPath(fullPath, pathName, fileName, extension);
 
-    if (extension.Length() && extension != ".js")
-        return false;
+	if (extension.Length() && extension != ".js")
+		return false;
 
-    if (IsAbsoluteParentPath(componentsPath_, pathName))
-        return true;
+	if (IsAbsoluteParentPath(componentsPath_, pathName))
+		return true;
 
-    return false;
+	return false;
 
 }
 
 bool Project::IsScriptsDirOrFile(const String& fullPath)
 {
-    String pathName;
-    String fileName;
-    String extension;
+	String pathName;
+	String fileName;
+	String extension;
 
-    SplitPath(fullPath, pathName, fileName, extension);
+	SplitPath(fullPath, pathName, fileName, extension);
 
-    if (extension.Length() && extension != ".js")
-        return false;
+	if (extension.Length() && extension != ".js")
+		return false;
 
-    if (IsAbsoluteParentPath(scriptsPath_, pathName))
-        return true;
+	if (IsAbsoluteParentPath(scriptsPath_, pathName))
+		return true;
 
-    return false;
+	return false;
 
 }
 
 bool Project::IsModulesDirOrFile(const String& fullPath)
 {
-    String pathName;
-    String fileName;
-    String extension;
+	String pathName;
+	String fileName;
+	String extension;
 
-    SplitPath(fullPath, pathName, fileName, extension);
+	SplitPath(fullPath, pathName, fileName, extension);
 
-    if (extension.Length() && extension != ".js")
-        return false;
+	if (extension.Length() && extension != ".js")
+		return false;
 
-    if (IsAbsoluteParentPath(modulesPath_, pathName))
-        return true;
+	if (IsAbsoluteParentPath(modulesPath_, pathName))
+		return true;
 
-    return false;
+	return false;
 
 }
 

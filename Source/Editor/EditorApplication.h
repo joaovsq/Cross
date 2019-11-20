@@ -5,7 +5,9 @@
 
 using namespace Cross;
 
-class EditorApplication : public Application 
+namespace Editor {
+
+class EditorApplication : public Application
 {
 	CROSS_OBJECT(EditorApplication, Application)
 
@@ -20,8 +22,7 @@ public:
 	/// Cleanup after the main loop. Called by Application.
 	virtual void Stop();
 
-protected:
-
+	String editorTitle_;
 private:
 
 	/// Defines the main window title and icon
@@ -29,7 +30,7 @@ private:
 	/// Subscribe to all editor events
 	void SubscribeToEvents();
 
-	String editorTitle_;
 	SharedPtr<Editor> editor_;
 };
 
+}

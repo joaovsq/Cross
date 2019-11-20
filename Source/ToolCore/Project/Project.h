@@ -36,80 +36,80 @@ class ProjectSettings;
 
 class Project : public Object
 {
-    friend class ProjectFile;
+	friend class ProjectFile;
 
-    CROSS_OBJECT(Project, Object);
+	CROSS_OBJECT(Project, Object);
 
 public:
-    /// Construct.
-    Project(Context* context);
-    /// Destruct.
-    virtual ~Project();
+	/// Construct.
+	Project(Context* context);
+	/// Destruct.
+	virtual ~Project();
 
-    bool Load(const String& fullpath);
-    void Save(const String& fullpath = "");
+	bool Load(const String& fullpath);
+	void Save(const String& fullpath = "");
 
-    /// Paths
-    const String& GetResourcePath() { return resourcePath_; }
-    void SetResourcePath(const String& resourcePath)
-    {
-        resourcePath_ = AddTrailingSlash(resourcePath);
-        componentsPath_ = resourcePath_ + "Components";
-        scriptsPath_ = resourcePath_ + "Scripts";
-        modulesPath_ = resourcePath_ + "Modules";
-    }
+	/// Paths
+	const String& GetResourcePath() { return resourcePath_; }
+	void SetResourcePath(const String& resourcePath)
+	{
+		resourcePath_ = AddTrailingSlash(resourcePath);
+		componentsPath_ = resourcePath_ + "Components";
+		scriptsPath_ = resourcePath_ + "Scripts";
+		modulesPath_ = resourcePath_ + "Modules";
+	}
 
-    const String& GetComponentsPath() { return componentsPath_; }
-    const String& GetScriptsPath() { return scriptsPath_; }
-    const String& GetModulesPath() { return modulesPath_; }
+	const String& GetComponentsPath() { return componentsPath_; }
+	const String& GetScriptsPath() { return scriptsPath_; }
+	const String& GetModulesPath() { return modulesPath_; }
 
-    bool IsComponentsDirOrFile(const String& fullPath);
-    bool IsScriptsDirOrFile(const String& fullPath);
-    bool IsModulesDirOrFile(const String& fullPath);
+	bool IsComponentsDirOrFile(const String& fullPath);
+	bool IsScriptsDirOrFile(const String& fullPath);
+	bool IsModulesDirOrFile(const String& fullPath);
 
-    bool GetSupportsPlatform(const String& platform) const;
+	bool GetSupportsPlatform(const String& platform) const;
 
-    bool IsDirty() { return dirty_; }
-    void SetDirty() { if (!loading_) dirty_ = true; }
+	bool IsDirty() { return dirty_; }
+	void SetDirty() { if (!loading_) dirty_ = true; }
 
-    ProjectBuildSettings* GetBuildSettings() { return buildSettings_; }
-    ProjectUserPrefs* GetUserPrefs() { return userPrefs_; }
-    ProjectSettings* GetProjectSettings() { return projectSettings_; }
+	ProjectBuildSettings* GetBuildSettings() { return buildSettings_; }
+	ProjectUserPrefs* GetUserPrefs() { return userPrefs_; }
+	ProjectSettings* GetProjectSettings() { return projectSettings_; }
 
-    const String& GetProjectPath() const { return projectPath_; }
-    const String& GetProjectFilePath() { return projectFilePath_; }
-    String GetUserPrefsFullPath();
-    String GetBuildSettingsFullPath();
+	const String& GetProjectPath() const { return projectPath_; }
+	const String& GetProjectFilePath() { return projectFilePath_; }
+	String GetUserPrefsFullPath();
+	String GetBuildSettingsFullPath();
 
-    const String& GetVersion() { return version_; }
-    void SetVersion(const String& version) { version_ = version; }
+	const String& GetVersion() { return version_; }
+	void SetVersion(const String& version) { version_ = version; }
 
-    void SaveBuildSettings();
-    bool LoadBuildSettings();
-    bool LoadProjectSettings();
+	void SaveBuildSettings();
+	bool LoadBuildSettings();
+	bool LoadProjectSettings();
 
-    void SaveUserPrefs();
-    bool LoadUserPrefs();
+	void SaveUserPrefs();
+	bool LoadUserPrefs();
 
 private:
 
 
-    String version_;
+	String version_;
 
-    String projectPath_;
-    String projectFilePath_;
-    String resourcePath_;
+	String projectPath_;
+	String projectFilePath_;
+	String resourcePath_;
 
-    String componentsPath_;
-    String scriptsPath_;
-    String modulesPath_;
+	String componentsPath_;
+	String scriptsPath_;
+	String modulesPath_;
 
-    bool loading_;
-    bool dirty_;
+	bool loading_;
+	bool dirty_;
 
-    SharedPtr<ProjectUserPrefs> userPrefs_;
-    SharedPtr<ProjectBuildSettings> buildSettings_;
-    SharedPtr<ProjectSettings> projectSettings_;
+	SharedPtr<ProjectUserPrefs> userPrefs_;
+	SharedPtr<ProjectBuildSettings> buildSettings_;
+	SharedPtr<ProjectSettings> projectSettings_;
 
 };
 

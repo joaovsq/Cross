@@ -9,9 +9,13 @@
 #include <Cross/UI/SystemUI/SystemUI.h>
 #include <Cross/UI/SystemUI/SystemUIEvents.h>
 #include <Cross/UI/SystemUI/Console.h>
+#include <Cross/Input/Input.h>
+#include <Cross/Input/InputEvents.h>
 #include <ThirdParty/imgui/imgui.h>
 
 #include "Editor.h"
+
+namespace Editor {
 
 
 Editor::Editor(Context* context)
@@ -21,6 +25,7 @@ Editor::Editor(Context* context)
 
 void Editor::SubscribeToEvents() {
 	SubscribeToEvent(E_SYSTEMUIFRAME, CROSS_HANDLER(Editor, RenderUi));
+	SubscribeToEvent(E_DROPFILE, CROSS_HANDLER(Editor, ImportAsset));
 }
 
 void Editor::RenderUi(StringHash eventType, VariantMap& eventData)
@@ -53,12 +58,25 @@ void Editor::RenderUi(StringHash eventType, VariantMap& eventData)
 }
 
 
-void Editor::ImportAsset()
+void Editor::ImportAsset(StringHash eventType, VariantMap& eventData)
 {
+	using namespace DropFile;
+
+	// Get the file path
+	Variant file = eventData[P_FILENAME];
+	String filePath = file.GetString();
+
+	CROSS_LOGINFOF("Importing file: %s", filePath);
+
+
 
 }
 
 void Editor::CreateDefaultScene()
 {
+
+
+
+}
 
 }

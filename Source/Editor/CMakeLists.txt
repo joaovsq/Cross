@@ -8,5 +8,5 @@ if (WIN32)
 endif()
 
 add_executable(Editor ${EDITOR_SOURCE_FILES})
-target_link_libraries(Editor Cross)
+target_link_libraries(Editor Cross ToolCore)
 
