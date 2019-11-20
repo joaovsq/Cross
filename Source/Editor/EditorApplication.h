@@ -4,8 +4,7 @@
 #include "Editor.h"
 
 using namespace Cross;
-
-namespace Editor {
+using namespace CEditor;
 
 class EditorApplication : public Application
 {
@@ -32,5 +31,3 @@ private:
 
 	SharedPtr<Editor> editor_;
 };
-
-}

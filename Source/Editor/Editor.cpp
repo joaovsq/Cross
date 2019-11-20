@@ -15,7 +15,7 @@
 
 #include "Editor.h"
 
-namespace Editor {
+namespace CEditor {
 
 
 Editor::Editor(Context* context)
@@ -26,33 +26,21 @@ Editor::Editor(Context* context)
 void Editor::SubscribeToEvents() {
 	SubscribeToEvent(E_SYSTEMUIFRAME, CROSS_HANDLER(Editor, RenderUi));
 	SubscribeToEvent(E_DROPFILE, CROSS_HANDLER(Editor, ImportAsset));
+	SubscribeToEvent(E_KEYDOWN, CROSS_HANDLER(Editor, HandleKeyDown));
 }
 
 void Editor::RenderUi(StringHash eventType, VariantMap& eventData)
 {
-	ImGui::SetNextWindowSize(ImVec2(200, 300), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowPos(ImVec2(200, 300), ImGuiCond_FirstUseEver);
-	if (ImGui::Begin("Sample SystemUI", 0, ImGuiWindowFlags_NoSavedSettings))
+	ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(15, 15), ImGuiCond_FirstUseEver);
+	if (ImGui::Begin("Inspector", 0, ImGuiWindowFlags_NoSavedSettings))
 	{
-		if (messageBox_.NotNull())
+
+		if (ImGui::Button("New Project"))
 		{
-			if (ImGui::Button("Close message box"))
-				messageBox_ = nullptr;
-		}
-		else
-		{
-			if (ImGui::Button("Show message box"))
-			{
-				messageBox_ = new MessageBox(context_, "Hello from SystemUI", "Sample Message Box");
-				SubscribeToEvent(E_MESSAGEACK, [&](StringHash, VariantMap&) {
-					messageBox_ = nullptr;
-					}
-				);
-			}
+
 		}
 
-		if (ImGui::Button("Toggle console"))
-			GetSubsystem<Console>()->Toggle();
 	}
 	ImGui::End();
 }
@@ -68,8 +56,12 @@ void Editor::ImportAsset(StringHash eventType, VariantMap& eventData)
 
 	CROSS_LOGINFOF("Importing file: %s", filePath);
 
+}
 
-
+void Editor::HandleKeyDown(StringHash eventType, VariantMap& eventData)
+{
+	if (eventData[KeyDown::P_KEY].GetUInt() == KEY_QUOTE)
+		GetSubsystem<Console>()->Toggle();
 }
 
 void Editor::CreateDefaultScene()
