@@ -27,10 +27,11 @@ private:
 	/// Process a key input
 	void HandleKeyDown(StringHash eventType, VariantMap& eventData);
 	
+	void LoadOrCreateProject(String& path);
 	/// Create the default Editor Scene
 	void CreateDefaultScene();
 
-	SharedPtr<Project> openProject_;
+	SharedPtr<Project> project_;
 };
 
 }

@@ -22,6 +22,7 @@ namespace CEditor {
 Editor::Editor(Context* context)
 	: Object(context) {
 
+	project_ = new Project(context);
 }
 
 void Editor::SubscribeToEvents() {
@@ -63,6 +64,18 @@ void Editor::HandleKeyDown(StringHash eventType, VariantMap& eventData)
 {
 	if (eventData[KeyDown::P_KEY].GetUInt() == KEY_QUOTE)
 		GetSubsystem<Console>()->Toggle();
+}
+
+void Editor::LoadOrCreateProject(String& path)
+{
+	// save a open project before loading or creating a new one
+	if (project_->GetProjectFilePath() != nullptr && project_->GetProjectPath != nullptr) {
+		CROSS_LOGWARNING("There are already a Open Project. Saving the current open project... ");
+		project_->Save();
+	}
+
+	CROSS_LOGINFOF("Loading or creating a new project from path: %s", path);
+	project_->Load(path);
 }
 
 void Editor::CreateDefaultScene()
