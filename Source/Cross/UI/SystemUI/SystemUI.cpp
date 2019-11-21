@@ -43,6 +43,8 @@ SystemUI::SystemUI(Cross::Context* context)
           , vertexBuffer_(context)
           , indexBuffer_(context)
 {
+	ImGui::CreateContext();
+
     ImGuiIO& io = ImGui::GetIO();
     io.KeyMap[ImGuiKey_Tab] = SCANCODE_TAB;
     io.KeyMap[ImGuiKey_LeftArrow] = SCANCODE_LEFT;
@@ -61,11 +63,12 @@ SystemUI::SystemUI(Cross::Context* context)
     io.KeyMap[ImGuiKey_X] = SCANCODE_X;
     io.KeyMap[ImGuiKey_Y] = SCANCODE_Y;
     io.KeyMap[ImGuiKey_Z] = SCANCODE_Z;
-
-    io.RenderDrawListsFn = [](ImDrawData* data)
+	/*
+	io.RenderDrawListsFn = [](ImDrawData* data)
     {
         static_cast<SystemUI*>(ImGui::GetIO().UserData)->OnRenderDrawLists(data);
-    };
+    }; 
+	*/
     io.SetClipboardTextFn = [](void* user_data, const char* text)
     { SDL_SetClipboardText(text); };
     io.GetClipboardTextFn = [](void* user_data) -> const char*
@@ -87,7 +90,7 @@ SystemUI::SystemUI(Cross::Context* context)
 
 SystemUI::~SystemUI()
 {
-    ImGui::Shutdown();
+    ImGui::DestroyContext();
 }
 
 void SystemUI::UpdateProjectionMatrix()
@@ -176,7 +179,7 @@ void SystemUI::OnRawEvent(VariantMap& args)
     case SDL_FINGERUP:
     case SDL_FINGERDOWN:
     case SDL_FINGERMOTION:
-        args[SDLRawInput::P_CONSUMED] = ImGui::IsAnyWindowHovered();
+        args[SDLRawInput::P_CONSUMED] = ImGui::IsWindowHovered(ImGuiHoveredFlags_::ImGuiHoveredFlags_AnyWindow);
         break;
     default:
         break;
@@ -195,6 +198,8 @@ void SystemUI::OnEndRendering(VariantMap& args)
 
     CROSS_PROFILE(SystemUiRender);
     ImGui::Render();
+
+	OnRenderDrawLists(ImGui::GetDrawData());
 }
 
 void SystemUI::OnRenderDrawLists(ImDrawData* data)

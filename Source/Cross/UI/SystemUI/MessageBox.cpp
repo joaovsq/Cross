@@ -32,81 +32,81 @@ namespace Cross
 {
 
 MessageBox::MessageBox(Context* context, const String& messageString, const String& titleString) :
-    Object(context),
-    titleText_(0),
-    messageText_(messageString),
-    isOpen_(true)
+	Object(context),
+	titleText_(0),
+	messageText_(messageString),
+	isOpen_(true)
 {
-    SetTitle(titleString);
-    Graphics* graphics = GetSubsystem<Graphics>();
-    windowSize_ = ImVec2(300, 150);
-    windowPosition_ = ImVec2(graphics->GetWidth() / 2 - windowSize_.x / 2, graphics->GetHeight() / 2 - windowSize_.y / 2);
-    SubscribeToEvent(E_SYSTEMUIFRAME, CROSS_HANDLER(MessageBox, RenderFrame));
+	SetTitle(titleString);
+	Graphics* graphics = GetSubsystem<Graphics>();
+	windowSize_ = ImVec2(300, 150);
+	windowPosition_ = ImVec2(graphics->GetWidth() / 2 - windowSize_.x / 2, graphics->GetHeight() / 2 - windowSize_.y / 2);
+	SubscribeToEvent(E_SYSTEMUIFRAME, CROSS_HANDLER(MessageBox, RenderFrame));
 }
 
 MessageBox::~MessageBox()
 {
-    UnsubscribeFromAllEvents();
+	UnsubscribeFromAllEvents();
 }
 
 void MessageBox::RegisterObject(Context* context)
 {
-    context->RegisterFactory<MessageBox>();
+	context->RegisterFactory<MessageBox>();
 }
 
 void MessageBox::SetTitle(const String& text)
 {
-    titleText_ = ToString("%s##%p", text.CString(), this);
+	titleText_ = ToString("%s##%p", text.CString(), this);
 }
 
 void MessageBox::SetMessage(const String& text)
 {
-    messageText_ = text;
+	messageText_ = text;
 }
 
 const String& MessageBox::GetTitle() const
 {
-    return titleText_;
+	return titleText_;
 }
 
 const String& MessageBox::GetMessage() const
 {
-    return messageText_;
+	return messageText_;
 }
 
 void MessageBox::RenderFrame(StringHash eventType, VariantMap& eventData)
 {
-    using namespace MessageACK;
-    ImGui::SetNextWindowPos(windowPosition_, ImGuiCond_FirstUseEver);
-    if (ImGui::Begin(titleText_.CString(), &isOpen_, windowSize_, -1, ImGuiWindowFlags_NoCollapse|
-                     ImGuiWindowFlags_NoSavedSettings))
-    {
-        ImGui::TextUnformatted(messageText_.CString());
-        auto region = ImGui::GetContentRegionAvail();
-        ImGui::SetCursorPos(ImVec2(region.x - 100 + 20, region.y + 20));
+	using namespace MessageACK;
+	ImGui::SetNextWindowPos(windowPosition_, ImGuiCond_FirstUseEver);
+	if (ImGui::Begin(titleText_.CString(), &isOpen_, ImGuiWindowFlags_NoCollapse |
+		ImGuiWindowFlags_NoSavedSettings))
+	{
+		ImGui::TextUnformatted(messageText_.CString());
+		auto region = ImGui::GetContentRegionAvail();
+		ImGui::SetCursorPos(ImVec2(region.x - 100 + 20, region.y + 20));
 
-        bool closeWindow = false;
-        bool status = false;
-        if (ImGui::Button("Ok"))
-        {
-            closeWindow = true;
-            status = true;
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Cancel") || !isOpen_)
-        {
-            closeWindow = true;
-            status = false;
-        }
+		bool closeWindow = false;
+		bool status = false;
+		if (ImGui::Button("Ok"))
+		{
+			closeWindow = true;
+			status = true;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel") || !isOpen_)
+		{
+			closeWindow = true;
+			status = false;
+		}
 
-        if (closeWindow)
-        {
-            SendEvent(E_MESSAGEACK, P_OK, status);
-            UnsubscribeFromAllEvents();
-            isOpen_ = false;
-        }
-    }
-    ImGui::End();
+		if (closeWindow)
+		{
+			SendEvent(E_MESSAGEACK, P_OK, status);
+			UnsubscribeFromAllEvents();
+			isOpen_ = false;
+		}
+	}
+	ImGui::End();
 }
 
 }

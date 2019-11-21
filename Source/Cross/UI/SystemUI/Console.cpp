@@ -181,7 +181,7 @@ void Console::RenderUi(StringHash eventType, VariantMap& eventData)
 
         if (scrollToEnd_)
         {
-            ImGui::SetScrollHere();
+            ImGui::SetScrollHereY();
             scrollToEnd_ = false;
         }
 

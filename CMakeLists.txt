@@ -2,6 +2,9 @@ project(Cross)
 
 cmake_minimum_required(VERSION 3.3)
 
+#set(CMAKE_CXX_STANDARD 14)
+#set(CMAKE_CXX_STANDARD_REQUIRED OFF)
+
 set(CROSS_SOURCE_DIR ${Cross_SOURCE_DIR})
 set(CMAKE_MODULE_PATH ${CROSS_SOURCE_DIR}/Build/CMake/Modules)
 set(CROSS_DESKTOP TRUE)

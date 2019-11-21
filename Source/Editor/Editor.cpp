@@ -12,6 +12,7 @@
 #include <Cross/Input/Input.h>
 #include <Cross/Input/InputEvents.h>
 #include <ThirdParty/imgui/imgui.h>
+#include <Cross/UI/ImGuiFileBrowser.h>
 
 #include "Editor.h"
 
