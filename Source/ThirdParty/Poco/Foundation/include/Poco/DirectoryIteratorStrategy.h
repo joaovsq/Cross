@@ -34,7 +34,7 @@ class Foundation_API TraverseBase
 {
 public:
 	typedef std::stack<DirectoryIterator> Stack;
-	typedef std::pointer_to_unary_function<const Stack&, UInt16> DepthFunPtr;
+	typedef std::function<UInt16(const Stack&)> DepthFunPtr;
 
 	enum
 	{
@@ -58,7 +58,7 @@ private:
 };
 
 
-class Foundation_API ChildrenFirstTraverse: public TraverseBase
+class Foundation_API ChildrenFirstTraverse : public TraverseBase
 {
 public:
 	ChildrenFirstTraverse(DepthFunPtr depthDeterminer, UInt16 maxDepth = D_INFINITE);
@@ -72,7 +72,7 @@ private:
 };
 
 
-class Foundation_API SiblingsFirstTraverse: public TraverseBase
+class Foundation_API SiblingsFirstTraverse : public TraverseBase
 {
 public:
 	SiblingsFirstTraverse(DepthFunPtr depthDeterminer, UInt16 maxDepth = D_INFINITE);

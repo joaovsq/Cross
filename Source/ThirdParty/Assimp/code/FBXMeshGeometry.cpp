@@ -57,18 +57,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace Assimp {
 namespace FBX {
 
-    using namespace Util;
+using namespace Util;
 
 
 // ------------------------------------------------------------------------------------------------
 Geometry::Geometry(uint64_t id, const Element& element, const std::string& name, const Document& doc)
-    : Object(id, element,name)
+    : Object(id, element, name)
     , skin()
 {
-    const std::vector<const Connection*>& conns = doc.GetConnectionsByDestinationSequenced(ID(),"Deformer");
-    BOOST_FOREACH(const Connection* con, conns) {
+    const std::vector<const Connection*>& conns = doc.GetConnectionsByDestinationSequenced(ID(), "Deformer");
+    BOOST_FOREACH(const Connection * con, conns) {
         const Skin* const sk = ProcessSimpleConnection<Skin>(*con, false, "Skin -> Geometry", element);
-        if(sk) {
+        if (sk) {
             skin = sk;
             break;
         }
@@ -86,7 +86,7 @@ Geometry::~Geometry()
 
 // ------------------------------------------------------------------------------------------------
 MeshGeometry::MeshGeometry(uint64_t id, const Element& element, const std::string& name, const Document& doc)
-: Geometry(id, element,name, doc)
+    : Geometry(id, element, name, doc)
 {
     const Scope* sc = element.Compound();
     if (!sc) {
@@ -94,24 +94,24 @@ MeshGeometry::MeshGeometry(uint64_t id, const Element& element, const std::strin
     }
 
     // must have Mesh elements:
-    const Element& Vertices = GetRequiredElement(*sc,"Vertices",&element);
-    const Element& PolygonVertexIndex = GetRequiredElement(*sc,"PolygonVertexIndex",&element);
+    const Element& Vertices = GetRequiredElement(*sc, "Vertices", &element);
+    const Element& PolygonVertexIndex = GetRequiredElement(*sc, "PolygonVertexIndex", &element);
 
     // optional Mesh elements:
     const ElementCollection& Layer = sc->GetCollection("Layer");
 
     std::vector<aiVector3D> tempVerts;
-    ParseVectorDataArray(tempVerts,Vertices);
+    ParseVectorDataArray(tempVerts, Vertices);
 
-    if(tempVerts.empty()) {
+    if (tempVerts.empty()) {
         FBXImporter::LogWarn("encountered mesh with no vertices");
         return;
     }
 
     std::vector<int> tempFaces;
-    ParseVectorDataArray(tempFaces,PolygonVertexIndex);
+    ParseVectorDataArray(tempFaces, PolygonVertexIndex);
 
-    if(tempFaces.empty()) {
+    if (tempFaces.empty()) {
         FBXImporter::LogWarn("encountered mesh with no faces");
         return;
     }
@@ -120,7 +120,7 @@ MeshGeometry::MeshGeometry(uint64_t id, const Element& element, const std::strin
     faces.reserve(tempFaces.size() / 3);
 
     mapping_offsets.resize(tempVerts.size());
-    mapping_counts.resize(tempVerts.size(),0);
+    mapping_counts.resize(tempVerts.size(), 0);
     mappings.resize(tempFaces.size());
 
     const size_t vertex_count = tempVerts.size();
@@ -130,8 +130,8 @@ MeshGeometry::MeshGeometry(uint64_t id, const Element& element, const std::strin
     unsigned int count = 0;
     BOOST_FOREACH(int index, tempFaces) {
         const int absi = index < 0 ? (-index - 1) : index;
-        if(static_cast<size_t>(absi) >= vertex_count) {
-            DOMError("polygon vertex index out of range",&PolygonVertexIndex);
+        if (static_cast<size_t>(absi) >= vertex_count) {
+            DOMError("polygon vertex index out of range", &PolygonVertexIndex);
         }
 
         vertices.push_back(tempVerts[absi]);
@@ -168,11 +168,11 @@ MeshGeometry::MeshGeometry(uint64_t id, const Element& element, const std::strin
 
         const char* err;
         const int index = ParseTokenAsInt(*tokens[0], err);
-        if(err) {
-            DOMError(err,&element);
+        if (err) {
+            DOMError(err, &element);
         }
 
-        if(doc.Settings().readAllLayers || index == 0) {
+        if (doc.Settings().readAllLayers || index == 0) {
             const Scope& layer = GetRequiredScope(*(*it).second);
             ReadLayer(layer);
         }
@@ -206,19 +206,19 @@ void MeshGeometry::ReadLayer(const Scope& layer)
 // ------------------------------------------------------------------------------------------------
 void MeshGeometry::ReadLayerElement(const Scope& layerElement)
 {
-    const Element& Type = GetRequiredElement(layerElement,"Type");
-    const Element& TypedIndex = GetRequiredElement(layerElement,"TypedIndex");
+    const Element& Type = GetRequiredElement(layerElement, "Type");
+    const Element& TypedIndex = GetRequiredElement(layerElement, "TypedIndex");
 
-    const std::string& type = ParseTokenAsString(GetRequiredToken(Type,0));
-    const int typedIndex = ParseTokenAsInt(GetRequiredToken(TypedIndex,0));
+    const std::string& type = ParseTokenAsString(GetRequiredToken(Type, 0));
+    const int typedIndex = ParseTokenAsInt(GetRequiredToken(TypedIndex, 0));
 
     const Scope& top = GetRequiredScope(element);
     const ElementCollection candidates = top.GetCollection(type);
 
     for (ElementMap::const_iterator it = candidates.first; it != candidates.second; ++it) {
-        const int index = ParseTokenAsInt(GetRequiredToken(*(*it).second,0));
-        if(index == typedIndex) {
-            ReadVertexData(type,typedIndex,GetRequiredScope(*(*it).second));
+        const int index = ParseTokenAsInt(GetRequiredToken(*(*it).second, 0));
+        if (index == typedIndex) {
+            ReadVertexData(type, typedIndex, GetRequiredScope(*(*it).second));
             return;
         }
     }
@@ -232,27 +232,27 @@ void MeshGeometry::ReadLayerElement(const Scope& layerElement)
 void MeshGeometry::ReadVertexData(const std::string& type, int index, const Scope& source)
 {
     const std::string& MappingInformationType = ParseTokenAsString(GetRequiredToken(
-        GetRequiredElement(source,"MappingInformationType"),0)
+        GetRequiredElement(source, "MappingInformationType"), 0)
     );
 
     const std::string& ReferenceInformationType = ParseTokenAsString(GetRequiredToken(
-        GetRequiredElement(source,"ReferenceInformationType"),0)
+        GetRequiredElement(source, "ReferenceInformationType"), 0)
     );
 
     if (type == "LayerElementUV") {
-        if(index >= AI_MAX_NUMBER_OF_TEXTURECOORDS) {
+        if (index >= AI_MAX_NUMBER_OF_TEXTURECOORDS) {
             FBXImporter::LogError(Formatter::format("ignoring UV layer, maximum number of UV channels exceeded: ")
-                << index << " (limit is " << AI_MAX_NUMBER_OF_TEXTURECOORDS << ")" );
+                << index << " (limit is " << AI_MAX_NUMBER_OF_TEXTURECOORDS << ")");
             return;
         }
 
         const Element* Name = source["Name"];
         uvNames[index] = "";
-        if(Name) {
-            uvNames[index] = ParseTokenAsString(GetRequiredToken(*Name,0));
+        if (Name) {
+            uvNames[index] = ParseTokenAsString(GetRequiredToken(*Name, 0));
         }
 
-        ReadVertexDataUV(uvs[index],source,
+        ReadVertexDataUV(uvs[index], source,
             MappingInformationType,
             ReferenceInformationType
         );
@@ -265,7 +265,7 @@ void MeshGeometry::ReadVertexData(const std::string& type, int index, const Scop
 
         std::vector<int> temp_materials;
 
-        ReadVertexDataMaterials(temp_materials,source,
+        ReadVertexDataMaterials(temp_materials, source,
             MappingInformationType,
             ReferenceInformationType
         );
@@ -276,8 +276,11 @@ void MeshGeometry::ReadVertexData(const std::string& type, int index, const Scop
         // avoids loosing the material if there are more material layers
         // coming of which at least one contains actual data (did observe
         // that with one test file).
-        const size_t count_neg = std::count_if(temp_materials.begin(),temp_materials.end(),std::bind2nd(std::less<int>(),0));
-        if(count_neg == temp_materials.size()) {
+        const size_t count_neg = std::count_if(temp_materials.begin(), temp_materials.end(),
+            [&](auto const& elem) {
+                return elem > 0;
+            });
+        if (count_neg == temp_materials.size()) {
             FBXImporter::LogWarn("ignoring dummy material layer (all entries -1)");
             return;
         }
@@ -290,7 +293,7 @@ void MeshGeometry::ReadVertexData(const std::string& type, int index, const Scop
             return;
         }
 
-        ReadVertexDataNormals(normals,source,
+        ReadVertexDataNormals(normals, source,
             MappingInformationType,
             ReferenceInformationType
         );
@@ -301,7 +304,7 @@ void MeshGeometry::ReadVertexData(const std::string& type, int index, const Scop
             return;
         }
 
-        ReadVertexDataTangents(tangents,source,
+        ReadVertexDataTangents(tangents, source,
             MappingInformationType,
             ReferenceInformationType
         );
@@ -312,19 +315,19 @@ void MeshGeometry::ReadVertexData(const std::string& type, int index, const Scop
             return;
         }
 
-        ReadVertexDataBinormals(binormals,source,
+        ReadVertexDataBinormals(binormals, source,
             MappingInformationType,
             ReferenceInformationType
         );
     }
     else if (type == "LayerElementColor") {
-        if(index >= AI_MAX_NUMBER_OF_COLOR_SETS) {
+        if (index >= AI_MAX_NUMBER_OF_COLOR_SETS) {
             FBXImporter::LogError(Formatter::format("ignoring vertex color layer, maximum number of color sets exceeded: ")
-                << index << " (limit is " << AI_MAX_NUMBER_OF_COLOR_SETS << ")" );
+                << index << " (limit is " << AI_MAX_NUMBER_OF_COLOR_SETS << ")");
             return;
         }
 
-        ReadVertexDataColors(colors[index],source,
+        ReadVertexDataColors(colors[index], source,
             MappingInformationType,
             ReferenceInformationType
         );
@@ -348,7 +351,7 @@ void ResolveVertexDataArray(std::vector<T>& data_out, const Scope& source,
     const std::vector<unsigned int>& mappings)
 {
     std::vector<T> tempUV;
-    ParseVectorDataArray(tempUV,GetRequiredElement(source,dataElementName));
+    ParseVectorDataArray(tempUV, GetRequiredElement(source, dataElementName));
 
     // handle permutations of Mapping and Reference type - it would be nice to
     // deal with this more elegantly and with less redundancy, but right
@@ -367,14 +370,14 @@ void ResolveVertexDataArray(std::vector<T>& data_out, const Scope& source,
         data_out.resize(vertex_count);
 
         std::vector<int> uvIndices;
-        ParseVectorDataArray(uvIndices,GetRequiredElement(source,indexDataElementName));
+        ParseVectorDataArray(uvIndices, GetRequiredElement(source, indexDataElementName));
 
         for (size_t i = 0, e = uvIndices.size(); i < e; ++i) {
 
             const unsigned int istart = mapping_offsets[i], iend = istart + mapping_counts[i];
             for (unsigned int j = istart; j < iend; ++j) {
-                if(static_cast<size_t>(uvIndices[i]) >= tempUV.size()) {
-                    DOMError("index out of range",&GetRequiredElement(source,indexDataElementName));
+                if (static_cast<size_t>(uvIndices[i]) >= tempUV.size()) {
+                    DOMError("index out of range", &GetRequiredElement(source, indexDataElementName));
                 }
                 data_out[mappings[j]] = tempUV[uvIndices[i]];
             }
@@ -394,7 +397,7 @@ void ResolveVertexDataArray(std::vector<T>& data_out, const Scope& source,
         data_out.resize(vertex_count);
 
         std::vector<int> uvIndices;
-        ParseVectorDataArray(uvIndices,GetRequiredElement(source,indexDataElementName));
+        ParseVectorDataArray(uvIndices, GetRequiredElement(source, indexDataElementName));
 
         if (uvIndices.size() != vertex_count) {
             FBXImporter::LogError("length of input data unexpected for ByPolygonVertex mapping");
@@ -403,8 +406,8 @@ void ResolveVertexDataArray(std::vector<T>& data_out, const Scope& source,
 
         unsigned int next = 0;
         BOOST_FOREACH(int i, uvIndices) {
-            if(static_cast<size_t>(i) >= tempUV.size()) {
-                DOMError("index out of range",&GetRequiredElement(source,indexDataElementName));
+            if (static_cast<size_t>(i) >= tempUV.size()) {
+                DOMError("index out of range", &GetRequiredElement(source, indexDataElementName));
             }
 
             data_out[next++] = tempUV[i];
@@ -421,7 +424,7 @@ void MeshGeometry::ReadVertexDataNormals(std::vector<aiVector3D>& normals_out, c
     const std::string& MappingInformationType,
     const std::string& ReferenceInformationType)
 {
-    ResolveVertexDataArray(normals_out,source,MappingInformationType,ReferenceInformationType,
+    ResolveVertexDataArray(normals_out, source, MappingInformationType, ReferenceInformationType,
         "Normals",
         "NormalsIndex",
         vertices.size(),
@@ -436,7 +439,7 @@ void MeshGeometry::ReadVertexDataUV(std::vector<aiVector2D>& uv_out, const Scope
     const std::string& MappingInformationType,
     const std::string& ReferenceInformationType)
 {
-    ResolveVertexDataArray(uv_out,source,MappingInformationType,ReferenceInformationType,
+    ResolveVertexDataArray(uv_out, source, MappingInformationType, ReferenceInformationType,
         "UV",
         "UVIndex",
         vertices.size(),
@@ -451,7 +454,7 @@ void MeshGeometry::ReadVertexDataColors(std::vector<aiColor4D>& colors_out, cons
     const std::string& MappingInformationType,
     const std::string& ReferenceInformationType)
 {
-    ResolveVertexDataArray(colors_out,source,MappingInformationType,ReferenceInformationType,
+    ResolveVertexDataArray(colors_out, source, MappingInformationType, ReferenceInformationType,
         "Colors",
         "ColorIndex",
         vertices.size(),
@@ -466,8 +469,8 @@ void MeshGeometry::ReadVertexDataTangents(std::vector<aiVector3D>& tangents_out,
     const std::string& MappingInformationType,
     const std::string& ReferenceInformationType)
 {
-    const char * str = source.Elements().count( "Tangents" ) > 0 ? "Tangents" : "Tangent";
-    ResolveVertexDataArray(tangents_out,source,MappingInformationType,ReferenceInformationType,
+    const char* str = source.Elements().count("Tangents") > 0 ? "Tangents" : "Tangent";
+    ResolveVertexDataArray(tangents_out, source, MappingInformationType, ReferenceInformationType,
         str,
         "TangentIndex",
         vertices.size(),
@@ -482,8 +485,8 @@ void MeshGeometry::ReadVertexDataBinormals(std::vector<aiVector3D>& binormals_ou
     const std::string& MappingInformationType,
     const std::string& ReferenceInformationType)
 {
-    const char * str = source.Elements().count( "Binormals" ) > 0 ? "Binormals" : "Binormal";
-    ResolveVertexDataArray(binormals_out,source,MappingInformationType,ReferenceInformationType,
+    const char* str = source.Elements().count("Binormals") > 0 ? "Binormals" : "Binormal";
+    ResolveVertexDataArray(binormals_out, source, MappingInformationType, ReferenceInformationType,
         str,
         "BinormalIndex",
         vertices.size(),
@@ -504,7 +507,7 @@ void MeshGeometry::ReadVertexDataMaterials(std::vector<int>& materials_out, cons
     // materials are handled separately. First of all, they are assigned per-face
     // and not per polyvert. Secondly, ReferenceInformationType=IndexToDirect
     // has a slightly different meaning for materials.
-    ParseVectorDataArray(materials_out,GetRequiredElement(source,"Materials"));
+    ParseVectorDataArray(materials_out, GetRequiredElement(source, "Materials"));
 
     if (MappingInformationType == "AllSame") {
         // easy - same material for all faces
@@ -517,12 +520,12 @@ void MeshGeometry::ReadVertexDataMaterials(std::vector<int>& materials_out, cons
             materials_out.clear();
         }
 
-        materials.assign(vertices.size(),materials_out[0]);
+        materials.assign(vertices.size(), materials_out[0]);
     }
     else if (MappingInformationType == "ByPolygon" && ReferenceInformationType == "IndexToDirect") {
         materials.resize(face_count);
 
-        if(materials_out.size() != face_count) {
+        if (materials_out.size() != face_count) {
             FBXImporter::LogError(Formatter::format("length of input data unexpected for ByPolygon mapping: ")
                 << materials_out.size() << ", expected " << face_count
             );

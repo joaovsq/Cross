@@ -57,20 +57,12 @@ __forceinline void operator delete[](void *ptr, const char *, int)
 
 __forceinline void *operator new(size_t size)
 {
-#ifdef DEBUG_CPP_NAME
-	return _malloc_dbg(size, _NORMAL_BLOCK, DEBUG_CPP_NAME, 1);
-#else
 	return _malloc_dbg(size, _NORMAL_BLOCK, "(No CPP Name)", 1);
-#endif
 }
 
 __forceinline void *operator new[](size_t size)
 {
-#ifdef DEBUG_CPP_NAME
-	return _malloc_dbg(size, _NORMAL_BLOCK, DEBUG_CPP_NAME " new[]", 1);
-#else
 	return _malloc_dbg(size, _NORMAL_BLOCK, "(No CPP Name new[])", 1);
-#endif
 }
 
 __forceinline void operator delete(void *ptr)
