@@ -77,28 +77,15 @@ namespace ToolCore
         void Save(const String& path);
 
         const String& GetName() const { return name_;  }
-
-        bool ValidPlatform(const String& platform) const;
-
-        bool GetSupportsPlatform(const String& platform) const;
-        bool GetSupportsDesktop() const;
-        bool GetSupportsAndroid() const;
-        bool GetSupportsIOS() const;
-        bool GetSupportsWeb() const;
-        bool GetSupportsLinux() const;
-
-        void AddSupportedPlatform(const String& platform);
-
+        
     private:
 
         void SetDefault();
 
         String name_;
-        List<String> platforms_;
 
         SharedPtr<DesktopProjectSettings> desktopSettings_;
         SharedPtr<AndroidProjectSettings> androidSettings_;
-
     };
 
 }

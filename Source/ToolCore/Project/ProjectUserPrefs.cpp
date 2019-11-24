@@ -37,11 +37,7 @@ ProjectUserPrefs::ProjectUserPrefs(Context* context) : Object(context),
   snapScale_(0.1f)
 
 {
-#ifdef CROSS_PLATFORM_OSX
-    defaultPlatform_ = PLATFORMID_MAC;
-#else
-    defaultPlatform_ = PLATFORMID_WINDOWS;
-#endif
+
 }
 
 ProjectUserPrefs::~ProjectUserPrefs()

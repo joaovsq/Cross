@@ -3,6 +3,7 @@
 #include <Cross/Core/Context.h>
 #include <Cross/Core/Object.h>
 #include <ToolCore/Project/Project.h>
+#include <Cross/UI/ImGuiFileBrowser.h>
 
 using namespace Cross;
 using namespace ToolCore;
@@ -27,11 +28,15 @@ private:
 	/// Process a key input
 	void HandleKeyDown(StringHash eventType, VariantMap& eventData);
 	
-	void LoadOrCreateProject(String& path);
+	///
+	void CreateProject();
+	///
+	void LoadProject(const String& path);
 	/// Create the default Editor Scene
 	void CreateDefaultScene();
 
 	SharedPtr<Project> project_;
+
 };
 
 }

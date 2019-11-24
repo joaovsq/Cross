@@ -24,8 +24,6 @@
 
 #include <Cross/Core/Object.h>
 
-#include "Platform/Platform.h"
-
 using namespace Cross;
 
 namespace ToolCore
@@ -47,27 +45,13 @@ public:
     Project* GetProject() { return project_; }
     void CloseProject();
 
-    // Platforms
-    void RegisterPlatform(Platform* platform);
-    Platform* GetPlatformByID(PlatformID platform);
-    Platform* GetPlatformByName(const String& name);
-
-    void SetCurrentPlatform(PlatformID platform);
-    Platform* GetCurrentPlatform();
-
 private:
 
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
 
-    SharedPtr<Platform> currentPlatform_;
-
-    // PlatformID -> platform
-    HashMap<unsigned, SharedPtr<Platform> > platforms_;
-
     SharedPtr<Project> project_;
 
     float updateDelta_;
-
 };
 
 }

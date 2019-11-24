@@ -46,7 +46,11 @@ class FileBrowser
 public:
 
 	// pwd is set to current working directory by default
-	explicit FileBrowser(ImGuiFileBrowserFlags flags = 0);
+	explicit FileBrowser(ImGuiFileBrowserFlags flags =
+		ImGuiFileBrowserFlags_SelectDirectory | ImGuiFileBrowserFlags_EnterNewFilename
+		| ImGuiFileBrowserFlags_NoModal | ImGuiFileBrowserFlags_NoTitleBar
+		| ImGuiFileBrowserFlags_NoStatusBar | ImGuiFileBrowserFlags_CloseOnEsc
+		| ImGuiFileBrowserFlags_CreateNewDir);
 
 	FileBrowser(const FileBrowser& copyFrom);
 
@@ -501,7 +505,7 @@ inline void ImGui::FileBrowser::SetPwdUncatched(const fs::path& pwd)
 	for (auto& p : fs::directory_iterator(pwd))
 	{
 		FileRecord rcd;
-		
+
 		if (fs::is_regular_file(p))
 			rcd.isDir = false;
 		else if (fs::is_directory(p))

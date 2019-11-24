@@ -26,8 +26,6 @@
 
 using namespace Cross;
 
-#include "../Platform/Platform.h"
-
 namespace ToolCore
 {
 
@@ -42,9 +40,6 @@ public:
     ProjectUserPrefs(Context* context);
     /// Destruct.
     virtual ~ProjectUserPrefs();
-
-    // platform used when not specified
-    PlatformID GetDefaultPlatform() const { return defaultPlatform_; }
 
     const String& GetLastBuildPath() { return lastBuildPath_; }
     void SetLastBuildPath(const String& path) { lastBuildPath_ = path; }
@@ -66,7 +61,6 @@ private:
     bool Load(const String& path);
     void Save(const String& path);
 
-    PlatformID defaultPlatform_;
     String lastBuildPath_;
 
     float snapTranslationX_;

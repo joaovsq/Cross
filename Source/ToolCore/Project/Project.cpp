@@ -29,12 +29,10 @@
 #include "../ToolSystem.h"
 #include "../ToolEnvironment.h"
 #include "../ToolEvents.h"
-#include "../Platform/Platform.h"
 
 #include "ProjectEvents.h"
 #include "ProjectFile.h"
 #include "ProjectSettings.h"
-#include "ProjectBuildSettings.h"
 #include "ProjectUserPrefs.h"
 #include "Project.h"
 
@@ -43,14 +41,12 @@ namespace ToolCore
 
 Project::Project(Context* context) :
 	Object(context),
-	loading_(false),
-	dirty_(false)
+	loading_(false)
 {
 	version_ = "1.0.0";
 
 	projectSettings_ = new ProjectSettings(context_);
 	userPrefs_ = new ProjectUserPrefs(context_);
-	buildSettings_ = new ProjectBuildSettings(context_);
 }
 
 Project::~Project()
@@ -63,12 +59,10 @@ void Project::SaveUserPrefs()
 	String path = GetProjectPath() + "UserPrefs.json";
 
 	userPrefs_->Save(path);
-
 }
 
 bool Project::LoadUserPrefs()
 {
-	ToolSystem* tsystem = GetSubsystem<ToolSystem>();
 	ToolEnvironment* tenv = GetSubsystem<ToolEnvironment>();
 
 	String path = GetProjectPath() + "UserPrefs.json";
@@ -76,7 +70,7 @@ bool Project::LoadUserPrefs()
 	userPrefs_->Load(path);
 
 	// If we're in CLI mode, the Build folder is always relative to project
-	if (tenv->GetCLI())
+	if (tenv != nullptr && tenv->GetCLI())
 	{
 		String path = GetPath(projectFilePath_) + "Build";
 		userPrefs_->SetLastBuildPath(path);
@@ -85,26 +79,10 @@ bool Project::LoadUserPrefs()
 	return true;
 }
 
-void Project::SaveBuildSettings()
-{
-	buildSettings_->Save(GetProjectPath() + "BuildSettings.json");
-}
-
-bool Project::LoadBuildSettings()
-{
-	buildSettings_->Load(GetProjectPath() + "BuildSettings.json");
-	return true;
-}
-
 bool Project::LoadProjectSettings()
 {
 	projectSettings_->Load(GetProjectPath() + "Settings/Project.json");
 	return true;
-}
-
-bool Project::GetSupportsPlatform(const String& platform) const
-{
-	return projectSettings_->GetSupportsPlatform(platform);
 }
 
 bool Project::Load(const String& fullpath)
@@ -177,7 +155,6 @@ bool Project::Load(const String& fullpath)
 	loading_ = false;
 
 	LoadProjectSettings();
-	LoadBuildSettings();
 	LoadUserPrefs();
 
 	if (true /*result*/) {
@@ -191,12 +168,26 @@ bool Project::Load(const String& fullpath)
 	return result;
 }
 
-String Project::GetBuildSettingsFullPath()
+void Project::Create(const String& fullpath)
 {
-	String path = GetPath(projectFilePath_);
-	String filename = GetFileName(projectFilePath_);
-	String buildSettingsPath = path + filename + ".buildsettings";
-	return buildSettingsPath;
+	if (fullpath.Contains(".cross")) {
+		projectPath_ = AddTrailingSlash(GetPath(fullpath));
+		projectFilePath_ = fullpath;
+		Save(fullpath);
+	}
+	else {
+		SharedPtr<ProjectFile> pfile(new ProjectFile(context_));
+		pfile->WriteNewProject(fullpath);
+
+		projectPath_ = AddTrailingSlash(GetPath(fullpath));
+		projectFilePath_ = fullpath;
+	}
+}
+
+void Project::Save(const String& fullpath)
+{
+	SharedPtr<ProjectFile> pfile(new ProjectFile(context_));
+	pfile->Save(this);
 }
 
 String Project::GetUserPrefsFullPath()
@@ -205,13 +196,6 @@ String Project::GetUserPrefsFullPath()
 	String filename = GetFileName(projectFilePath_);
 	String prefsPath = path + filename + ".userprefs";
 	return prefsPath;
-}
-
-void Project::Save(const String& fullpath)
-{
-	SharedPtr<ProjectFile> pfile(new ProjectFile(context_));
-	pfile->Save(this);
-	dirty_ = false;
 }
 
 bool Project::IsComponentsDirOrFile(const String& fullPath)

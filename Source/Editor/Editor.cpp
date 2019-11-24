@@ -12,17 +12,19 @@
 #include <Cross/Input/Input.h>
 #include <Cross/Input/InputEvents.h>
 #include <ThirdParty/imgui/imgui.h>
-#include <Cross/UI/ImGuiFileBrowser.h>
 
 #include "Editor.h"
 
 namespace CEditor {
 
+ImGui::FileBrowser projectBrowser_;
 
 Editor::Editor(Context* context)
 	: Object(context) {
 
 	project_ = new Project(context);
+
+	projectBrowser_.SetTitle("Select a Folder or .cross file");
 }
 
 void Editor::SubscribeToEvents() {
@@ -35,16 +37,7 @@ void Editor::RenderUi(StringHash eventType, VariantMap& eventData)
 {
 	ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowPos(ImVec2(15, 15), ImGuiCond_FirstUseEver);
-	if (ImGui::Begin("Inspector", 0, ImGuiWindowFlags_NoSavedSettings))
-	{
-
-		if (ImGui::Button("New Project"))
-		{
-
-		}
-
-	}
-	ImGui::End();
+	CreateProject();
 }
 
 
@@ -66,16 +59,41 @@ void Editor::HandleKeyDown(StringHash eventType, VariantMap& eventData)
 		GetSubsystem<Console>()->Toggle();
 }
 
-void Editor::LoadOrCreateProject(String& path)
+void Editor::CreateProject()
 {
-	// save a open project before loading or creating a new one
-	if (project_->GetProjectFilePath() != nullptr && project_->GetProjectPath != nullptr) {
-		CROSS_LOGWARNING("There are already a Open Project. Saving the current open project... ");
-		project_->Save();
+	if (ImGui::Begin("Inspector", 0, ImGuiWindowFlags_NoSavedSettings))
+	{
+		if (ImGui::Button("New Project"))
+		{
+			projectBrowser_.Open();
+		}
 	}
+	ImGui::End();
 
-	CROSS_LOGINFOF("Loading or creating a new project from path: %s", path);
-	project_->Load(path);
+	projectBrowser_.Display();
+
+	// if a folder or file was selected
+	if (projectBrowser_.HasSelected())
+	{
+		const String path(projectBrowser_.GetSelected().string().c_str());
+	
+		// save a open project before creating a new one
+		if (!project_->GetProjectFilePath().Empty() && !project_->GetProjectPath().Empty()) {
+			CROSS_LOGWARNING("There are already a Open Project. Saving the current open project... ");
+			project_->Save();
+			delete project_;
+			project_ = new Project(context_);
+		}
+
+		CROSS_LOGINFOF("Loading or creating a new project in path: %s", path);
+		project_->Save(path);
+
+		projectBrowser_.ClearSelected();
+	}
+}
+
+void Editor::LoadProject(const String& path)
+{
 }
 
 void Editor::CreateDefaultScene()

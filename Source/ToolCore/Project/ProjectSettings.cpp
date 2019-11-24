@@ -23,78 +23,15 @@ namespace ToolCore
     void ProjectSettings::SetDefault()
     {
         name_ = "CrossProject";
-        platforms_.Clear();
-        platforms_.Push("desktop");
     }
-
-    bool ProjectSettings::GetSupportsDesktop() const
-    {
-        return platforms_.Contains("desktop");
-    }
-
-    bool ProjectSettings::GetSupportsAndroid() const
-    {
-        return platforms_.Contains("android");
-    }
-
-    bool ProjectSettings::GetSupportsIOS() const
-    {
-        return platforms_.Contains("ios");
-    }
-
-    bool ProjectSettings::GetSupportsWeb() const
-    {
-        return platforms_.Contains("web");
-    }
-
-    bool ProjectSettings::GetSupportsLinux() const
-    {
-        return platforms_.Contains("linux");
-    }
-
-    bool ProjectSettings::GetSupportsPlatform(const String& platform) const
-    {
-        return platforms_.Contains(platform);
-    }
-
-    void ProjectSettings::AddSupportedPlatform(const String& platform)
-    {
-        if (!ValidPlatform(platform))
-        {
-            CROSS_LOGERRORF("ProjectPlatformSettings::AddSupportedPlatform - Attempting to add invalid platform: %s", platform.CString());
-            return;
-        }
-
-        if (platforms_.Contains(platform))
-            return;
-
-        platforms_.Push(platform);
-    }
-
-    bool ProjectSettings::ValidPlatform(const String& platform) const
-    {
-        if (platform == "desktop")
-            return true;
-        if (platform == "android")
-            return true;
-        if (platform == "ios")
-            return true;
-        if (platform == "linux")
-            return true;
-        if (platform == "web")
-            return true;
-
-        return false;
-
-    }
-
+    
     bool ProjectSettings::Load(const String& path)
     {
         FileSystem* fileSystem = GetSubsystem<FileSystem>();
 
         if (!fileSystem->FileExists(path))
         {
-            CROSS_LOGERRORF("No platform settings specified, using default: %s", path.CString());
+            CROSS_LOGERRORF("No settings specified, using default: %s", path.CString());
             SetDefault();
             return true;
         }
@@ -102,7 +39,7 @@ namespace ToolCore
         SharedPtr<File> file(new File(context_, path));
         if (!file->IsOpen())
         {
-            CROSS_LOGERRORF("Unable to open platform settings: %s", path.CString());
+            CROSS_LOGERRORF("Unable to open settings: %s", path.CString());
             return false;
         }
 
@@ -112,46 +49,15 @@ namespace ToolCore
 
         if (!result)
         {
-            CROSS_LOGERRORF("Unable to load platform settings: %s", path.CString());
+            CROSS_LOGERRORF("Unable to load settings: %s", path.CString());
             return false;
         }
 
         JSONValue& root = jsonFile->GetRoot();
         if (!root.IsObject())
         {
-            CROSS_LOGERRORF("No root object in platform settings: %s", path.CString());
+            CROSS_LOGERRORF("No root object in settings: %s", path.CString());
             return false;
-        }
-
-        JSONArray platforms = root["platforms"].GetArray();
-
-        platforms_.Clear();
-
-        if (!platforms.Size())
-        {
-            CROSS_LOGERRORF("No platforms array defined in platform settings: %s, using default", path.CString());
-            SetDefault();
-        }
-        else
-        {
-            for (unsigned i = 0; i < platforms.Size(); i++)
-            {
-                const String& platform = platforms[i].GetString();
-
-                if (!ValidPlatform(platform))
-                {
-                    CROSS_LOGERRORF("Unknown platform %s in platform settings: %s, skipping", platform.CString(), path.CString());
-                    continue;
-                }
-
-                platforms_.Push(platform);
-            }
-        }
-
-        if (!platforms_.Size())
-        {
-            CROSS_LOGERRORF("No valid platforms defined in platform settings: %s, using default", path.CString());
-            SetDefault();
         }
 
         name_ = root["name"].GetString();
@@ -179,7 +85,6 @@ namespace ToolCore
         jsonFile->Save(*file, String("   "));
 
         file->Close();
-
     }
 
 }

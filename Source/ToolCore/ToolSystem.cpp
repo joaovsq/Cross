@@ -25,16 +25,7 @@
 #include <Cross/IO/FileSystem.h>
 #include <Cross/Resource/ResourceCache.h>
 
-#include "Platform/PlatformWeb.h"
-#include "Platform/PlatformMac.h"
-#include "Platform/PlatformWindows.h"
-#include "Platform/PlatformAndroid.h"
-#include "Platform/PlatformIOS.h"
-#include "Platform/PlatformLinux.h"
-
 #include "Assets/AssetDatabase.h"
-#include "License/LicenseSystem.h"
-#include "Build/BuildSystem.h"
 #include "Subprocess/SubprocessSystem.h"
 
 #include "ToolSystem.h"
@@ -52,17 +43,7 @@ ToolSystem::ToolSystem(Context* context) : Object(context),
     updateDelta_(0.0f)
 {
     context_->RegisterSubsystem(new AssetDatabase(context_));
-    context_->RegisterSubsystem(new LicenseSystem(context_));
-    context_->RegisterSubsystem(new BuildSystem(context_));
     context_->RegisterSubsystem(new SubprocessSystem(context_));
-
-    // platform registration
-    RegisterPlatform(new PlatformMac(context));
-    RegisterPlatform(new PlatformWeb(context));
-    RegisterPlatform(new PlatformWindows(context));
-    RegisterPlatform(new PlatformIOS(context));
-    RegisterPlatform(new PlatformAndroid(context));
-    RegisterPlatform(new PlatformLinux(context));
 
     SubscribeToEvent(E_UPDATE, CROSS_HANDLER(ToolSystem, HandleUpdate));
 }
@@ -121,12 +102,6 @@ bool ToolSystem::LoadProject(const String& fullpath)
 
     bool result = project_->Load(fullpath);
 
-    if (result)
-    {
-        // TODO: persistent platform setting
-        SetCurrentPlatform(project_->GetUserPrefs()->GetDefaultPlatform());
-    }
-
     return result;
 }
 
@@ -149,59 +124,6 @@ void ToolSystem::CloseProject()
 
     cache->ReleaseAllResources(true);
 
-}
-
-void ToolSystem::SetCurrentPlatform(PlatformID platform)
-{
-    VariantMap eventData;
-
-    if (platform == PLATFORMID_UNDEFINED)
-    {
-        currentPlatform_ = NULL;
-        eventData[PlatformChanged::P_PLATFORM] = (Platform*) 0;
-        SendEvent(E_PLATFORMCHANGED, eventData);
-        return;
-    }
-
-    if (!platforms_.Contains((unsigned) platform))
-        return;
-
-    currentPlatform_ = platforms_[(unsigned)platform];
-    eventData[PlatformChanged::P_PLATFORM] = currentPlatform_;
-    SendEvent(E_PLATFORMCHANGED, eventData);
-
-}
-
-Platform* ToolSystem::GetPlatformByID(PlatformID platform)
-{
-    if (!platforms_.Contains((unsigned) platform))
-        return NULL;
-
-    return platforms_[(unsigned)platform];
-
-}
-
-Platform* ToolSystem::GetPlatformByName(const String& name)
-{
-    HashMap<unsigned, SharedPtr<Platform> >::Iterator itr = platforms_.Begin();
-    while (itr != platforms_.End())
-    {
-        if ((*itr).second_->GetName().ToLower()== name.ToLower())
-            return (*itr).second_;
-        itr++;
-    }
-
-    return NULL;
-}
-
-Platform *ToolSystem::GetCurrentPlatform()
-{
-    return currentPlatform_;
-}
-
-void ToolSystem::RegisterPlatform(Platform* platform)
-{
-    platforms_.Insert(MakePair((unsigned)platform->GetPlatformID(), SharedPtr<Platform>(platform)));
 }
 
 }

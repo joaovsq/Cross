@@ -65,7 +65,6 @@ void ProjectFile::WriteNewProject(const String& fullpath)
 void ProjectFile::Save(Project* project)
 {
     project_ = project;
-    ToolSystem* tsystem = GetSubsystem<ToolSystem>();
 
     String fullpath = project->GetProjectFilePath();
 
