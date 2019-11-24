@@ -55,11 +55,6 @@
 #ifdef CROSS_NETWORK
 #include "../Network/Network.h"
 #endif
-// CROSS BEGIN
-#ifdef CROSS_WEB
-#include "../Web/Web.h"
-#endif
-// CROSS END
 #ifdef CROSS_DATABASE
 #include "../Database/Database.h"
 #endif
@@ -155,10 +150,6 @@ Engine::Engine(Context* context) :
 #ifdef CROSS_NETWORK
     context_->RegisterSubsystem(new Network(context_));
 #endif
-    // CROSS BEGIN
-#ifdef CROSS_WEB
-    context_->RegisterSubsystem(new Web(context_));
-#endif
     // CROSS END
 #ifdef CROSS_DATABASE
     context_->RegisterSubsystem(new Database(context_));
@@ -200,9 +191,6 @@ Engine::Engine(Context* context) :
     context_->l18n_ = context_->GetSubsystem<Localization>();
 #ifdef CROSS_NETWORK
     context_->network_ = context_->GetSubsystem<Network>();
-#endif
-#ifdef CROSS_WEB
-    context_->web_ = context_->GetSubsystem<Web>();
 #endif
 #ifdef CROSS_DATABASE
     context_->db_ = context_->GetSubsystem<Database>();

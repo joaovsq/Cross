@@ -31,7 +31,6 @@
 #include "../IO/IOEvents.h"
 #include "../IO/Log.h"
 #include "../IO/MemoryBuffer.h"
-#include "../Network/HttpRequest.h"
 #include "../Network/Network.h"
 #include "../Network/NetworkEvents.h"
 #include "../Network/NetworkPriority.h"
@@ -406,16 +405,6 @@ void Network::SendPackageToClients(Scene* scene, PackageFile* package)
         if (i->second_->GetScene() == scene)
             i->second_->SendPackageToClient(package);
     }
-}
-
-SharedPtr<HttpRequest> Network::MakeHttpRequest(const String& url, const String& verb, const Vector<String>& headers,
-    const String& postData)
-{
-    CROSS_PROFILE(MakeHttpRequest);
-
-    // The initialization of the request will take time, can not know at this point if it has an error or not
-    SharedPtr<HttpRequest> request(new HttpRequest(url, verb, headers, postData));
-    return request;
 }
 
 Connection* Network::GetConnection(kNet::MessageConnection* connection) const

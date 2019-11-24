@@ -44,14 +44,12 @@ if (NOT CROSS_BUILD_2D)
 endif()
 
 add_subdirectory(SDL)
-
 add_subdirectory(Recast)
 add_subdirectory(Detour)
 add_subdirectory(DetourCrowd)
 add_subdirectory(DetourTileCache)
 
 if (NOT WEB)
-    add_subdirectory(Civetweb)
     add_subdirectory(kNet)
     if (NOT WIN32)
         add_subdirectory(openssl)

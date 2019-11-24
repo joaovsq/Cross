@@ -156,7 +156,7 @@ endif ()
 
 if (NOT WEB)
     target_compile_definitions (Cross PUBLIC -DCROSS_THREADING=1 -DCROSS_NETWORK=1 -DCROSS_WEB=1)
-    target_link_libraries (Cross libcurl Civetweb kNet)
+    target_link_libraries (Cross libcurl kNet)
 endif()
 
 if (CROSS_PROFILING)
