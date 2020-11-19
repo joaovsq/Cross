@@ -29,3 +29,4 @@ Script/Haxe/*
 .idea
 Cross.log
 Data/CrossEditor/ProjectTemplates/Project3D/Cpp/CMakeLists.txt
+CMakeSettings.json
