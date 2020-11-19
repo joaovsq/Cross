@@ -8,7 +8,7 @@
 using namespace Cross;
 using namespace ToolCore;
 
-namespace CEditor {
+namespace CrossEditor {
 
 class Editor : public Object
 {

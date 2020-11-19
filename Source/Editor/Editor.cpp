@@ -15,7 +15,7 @@
 
 #include "Editor.h"
 
-namespace CEditor {
+namespace CrossEditor {
 
 ImGui::FileBrowser projectBrowser_;
 

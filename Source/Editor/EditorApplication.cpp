@@ -6,8 +6,9 @@
 
 #include "EditorApplication.h"
 
+CROSS_DEFINE_APPLICATION_MAIN(CrossEditor::EditorApplication)
 
-CROSS_DEFINE_APPLICATION_MAIN(EditorApplication)
+namespace CrossEditor {
 
 EditorApplication::EditorApplication(Context* context)
 	:Application(context) {
@@ -67,3 +68,4 @@ void EditorApplication::SubscribeToEvents()
 	// TODO
 }
 
+}
