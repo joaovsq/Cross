@@ -139,7 +139,7 @@ namespace detail {
  * be allowed to finish normally, the work object may be explicitly destroyed.
  *
  * @code asio::io_service io_service;
- * auto_ptr<asio::io_service::work> work(
+ * unique_ptr<asio::io_service::work> work(
  *     new asio::io_service::work(io_service));
  * ...
  * work.reset(); // Allow run() to exit. @endcode
