@@ -2,7 +2,7 @@ project(Cross)
 
 cmake_minimum_required(VERSION 3.3)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CROSS_SOURCE_DIR ${Cross_SOURCE_DIR})
@@ -41,4 +41,4 @@ endif ()
 add_subdirectory(Source)
 
 # This subdirectory is specific to the cpp games, using the engine as a library
-add_subdirectory(Games)
+# add_subdirectory(Games)

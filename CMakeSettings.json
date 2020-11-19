@@ -12,7 +12,7 @@
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
       "clangTidyChecks": "-*,cppcoreguidelines-*",
-      "addressSanitizerEnabled": true
+      "addressSanitizerEnabled": false
     }
   ]
 }
