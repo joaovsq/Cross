@@ -20,7 +20,8 @@ namespace CrossEditor {
 
 Editor::Editor(Context* context)
 	: Object(context) {
-
+	
+	fileBrowser_.SetTitle("Select a file dudeeeeee");
 	project_ = new Project(context);
 }
 
@@ -80,8 +81,6 @@ void Editor::SceneMenu() {
 		ImGui::EndMenuBar();
 	}
 
-	ImGui::FileBrowser fileBrowser_;
-	fileBrowser_.SetTitle("Select a Scene file to save or create");
 
 	if (ImGui::Button("Save Scene"))
 		fileBrowser_.Open();
@@ -92,9 +91,9 @@ void Editor::SceneMenu() {
 	{
 		const String path(fileBrowser_.GetSelected().string().c_str());
 		
-		CROSS_LOGINFOF("Scene path selected: %s", path);
+		CROSS_LOGINFO(path);
 		
-		//fileBrowser_.ClearSelected();
+		fileBrowser_.ClearSelected();
 	}
 
 	ImGui::End();
@@ -112,9 +111,6 @@ void Editor::OpenScene(const String& filepath)
 
 void Editor::SaveProject()
 {
-	ImGui::FileBrowser fileBrowser_;
-	fileBrowser_.SetTitle("Select a Project .cross file to save or create");
-
 	if (ImGui::Button("Save Project"))
 	{
 		fileBrowser_.Open();

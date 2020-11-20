@@ -41,6 +41,7 @@ private:
 	void LoadProject(const String& path);
 
 	SharedPtr<Project> project_;
+	ImGui::FileBrowser fileBrowser_;
 };
 
 }
