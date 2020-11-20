@@ -17,17 +17,14 @@
 
 namespace CrossEditor {
 
-ImGui::FileBrowser projectBrowser_;
 
 Editor::Editor(Context* context)
 	: Object(context) {
 
 	project_ = new Project(context);
-
-	projectBrowser_.SetTitle("Select a Folder or .cross file");
 }
 
-void Editor::SubscribeToEvents() 
+void Editor::SubscribeToEvents()
 {
 	SubscribeToEvent(E_SYSTEMUIFRAME, CROSS_HANDLER(Editor, RenderUi));
 	SubscribeToEvent(E_DROPFILE, CROSS_HANDLER(Editor, ImportAsset));
@@ -39,9 +36,7 @@ void Editor::RenderUi(StringHash eventType, VariantMap& eventData)
 	ImGui::SetNextWindowSize(ImVec2(250, 400), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowPos(ImVec2(15, 15), ImGuiCond_FirstUseEver);
 
-	ImGui::Begin("Project Management", 0, ImGuiWindowFlags_MenuBar);
 	SceneMenu();
-	ImGui::End();
 }
 
 void Editor::ImportAsset(StringHash eventType, VariantMap& eventData)
@@ -62,54 +57,52 @@ void Editor::HandleKeyDown(StringHash eventType, VariantMap& eventData)
 }
 
 void Editor::SceneMenu() {
+	ImGui::Begin("Scene Controls", nullptr, ImGuiWindowFlags_MenuBar);
 	if (ImGui::BeginMenuBar())
 	{
-		if (ImGui::BeginMenu("Scene Management"))
+		if (ImGui::BeginMenu("Scenes"))
 		{
-			if (ImGui::MenuItem("Save Scene", "Ctrl+S")) {
-				CROSS_LOGDEBUG("SAVE scene menu clicked !!!!!");
-				SaveScene();
+			if (ImGui::MenuItem("Save Scene", "Ctrl+S"))
+			{
+
 			}
 
 			if (ImGui::MenuItem("Open Scene", "Ctrl+O")) {
-				CROSS_LOGDEBUG("Open scene menu clicked !!!!!");
+				CROSS_LOGDEBUG("OPEN scene menu clicked !!!!!");
 				// TODO
 			}
-			if (ImGui::MenuItem("Close Secene", "Ctrl+W")) {
+			if (ImGui::MenuItem("Close Scene", "Ctrl+W")) {
+				CROSS_LOGDEBUG("CLOSE scene menu clicked !!!!!");
 				// TODO
 			}
 			ImGui::EndMenu();
 		}
 		ImGui::EndMenuBar();
 	}
+
+	ImGui::FileBrowser fileBrowser_;
+	fileBrowser_.SetTitle("Select a Scene file to save or create");
+
+	if (ImGui::Button("Save Scene"))
+		fileBrowser_.Open();
+	fileBrowser_.Display();
+
+	// if a folder or file was selected
+	if (fileBrowser_.HasSelected())
+	{
+		const String path(fileBrowser_.GetSelected().string().c_str());
+		
+		CROSS_LOGINFOF("Scene path selected: %s", path);
+		
+		//fileBrowser_.ClearSelected();
+	}
+
+	ImGui::End();
 }
 
 void Editor::SaveScene()
 {
-	if (ImGui::Button("Save Scene"))
-	{
-		projectBrowser_.Open();
-	}
-	projectBrowser_.Display();
-
-	// if a folder or file was selected
-	if (projectBrowser_.HasSelected())
-	{
-		const String path(projectBrowser_.GetSelected().string().c_str());
-
-		// save a open project before creating a new one
-		if (!project_->GetProjectFilePath().Empty() && !project_->GetProjectPath().Empty()) {
-			CROSS_LOGWARNING("There are already a Open Project. Saving the current open project... ");
-			project_->Save();
-			delete project_;
-			project_ = new Project(context_);
-		}
-
-		CROSS_LOGINFOF(" or creating a new project in path: %s", path);
-		project_->Save(path);
-
-		projectBrowser_.ClearSelected();
-	}
+	
 }
 
 void Editor::OpenScene(const String& filepath)
@@ -119,17 +112,20 @@ void Editor::OpenScene(const String& filepath)
 
 void Editor::SaveProject()
 {
+	ImGui::FileBrowser fileBrowser_;
+	fileBrowser_.SetTitle("Select a Project .cross file to save or create");
+
 	if (ImGui::Button("Save Project"))
 	{
-		projectBrowser_.Open();
+		fileBrowser_.Open();
 	}
 
-	projectBrowser_.Display();
+	fileBrowser_.Display();
 
 	// if a folder or file was selected
-	if (projectBrowser_.HasSelected())
+	if (fileBrowser_.HasSelected())
 	{
-		const String path(projectBrowser_.GetSelected().string().c_str());
+		const String path(fileBrowser_.GetSelected().string().c_str());
 
 		// save a open project before creating a new one
 		if (!project_->GetProjectFilePath().Empty() && !project_->GetProjectPath().Empty()) {
@@ -142,7 +138,7 @@ void Editor::SaveProject()
 		CROSS_LOGINFOF("Loading or creating a new project in path: %s", path);
 		project_->Save(path);
 
-		projectBrowser_.ClearSelected();
+		fileBrowser_.ClearSelected();
 	}
 }
 
