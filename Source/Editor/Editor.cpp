@@ -27,7 +27,8 @@ Editor::Editor(Context* context)
 	projectBrowser_.SetTitle("Select a Folder or .cross file");
 }
 
-void Editor::SubscribeToEvents() {
+void Editor::SubscribeToEvents() 
+{
 	SubscribeToEvent(E_SYSTEMUIFRAME, CROSS_HANDLER(Editor, RenderUi));
 	SubscribeToEvent(E_DROPFILE, CROSS_HANDLER(Editor, ImportAsset));
 	SubscribeToEvent(E_KEYDOWN, CROSS_HANDLER(Editor, HandleKeyDown));
@@ -35,11 +36,13 @@ void Editor::SubscribeToEvents() {
 
 void Editor::RenderUi(StringHash eventType, VariantMap& eventData)
 {
-	ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(250, 400), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowPos(ImVec2(15, 15), ImGuiCond_FirstUseEver);
-	CreateProject();
-}
 
+	ImGui::Begin("Project Management", 0, ImGuiWindowFlags_MenuBar);
+	SceneMenu();
+	ImGui::End();
+}
 
 void Editor::ImportAsset(StringHash eventType, VariantMap& eventData)
 {
@@ -50,7 +53,6 @@ void Editor::ImportAsset(StringHash eventType, VariantMap& eventData)
 	String filePath = file.GetString();
 
 	CROSS_LOGINFOF("Importing file: %s", filePath);
-
 }
 
 void Editor::HandleKeyDown(StringHash eventType, VariantMap& eventData)
@@ -59,16 +61,68 @@ void Editor::HandleKeyDown(StringHash eventType, VariantMap& eventData)
 		GetSubsystem<Console>()->Toggle();
 }
 
-void Editor::CreateProject()
-{
-	if (ImGui::Begin("Inspector", 0, ImGuiWindowFlags_NoSavedSettings))
+void Editor::SceneMenu() {
+	if (ImGui::BeginMenuBar())
 	{
-		if (ImGui::Button("New Project"))
+		if (ImGui::BeginMenu("Scene Management"))
 		{
-			projectBrowser_.Open();
+			if (ImGui::MenuItem("Save Scene", "Ctrl+S")) {
+				CROSS_LOGDEBUG("SAVE scene menu clicked !!!!!");
+				SaveScene();
+			}
+
+			if (ImGui::MenuItem("Open Scene", "Ctrl+O")) {
+				CROSS_LOGDEBUG("Open scene menu clicked !!!!!");
+				// TODO
+			}
+			if (ImGui::MenuItem("Close Secene", "Ctrl+W")) {
+				// TODO
+			}
+			ImGui::EndMenu();
 		}
+		ImGui::EndMenuBar();
 	}
-	ImGui::End();
+}
+
+void Editor::SaveScene()
+{
+	if (ImGui::Button("Save Scene"))
+	{
+		projectBrowser_.Open();
+	}
+	projectBrowser_.Display();
+
+	// if a folder or file was selected
+	if (projectBrowser_.HasSelected())
+	{
+		const String path(projectBrowser_.GetSelected().string().c_str());
+
+		// save a open project before creating a new one
+		if (!project_->GetProjectFilePath().Empty() && !project_->GetProjectPath().Empty()) {
+			CROSS_LOGWARNING("There are already a Open Project. Saving the current open project... ");
+			project_->Save();
+			delete project_;
+			project_ = new Project(context_);
+		}
+
+		CROSS_LOGINFOF(" or creating a new project in path: %s", path);
+		project_->Save(path);
+
+		projectBrowser_.ClearSelected();
+	}
+}
+
+void Editor::OpenScene(const String& filepath)
+{
+}
+
+
+void Editor::SaveProject()
+{
+	if (ImGui::Button("Save Project"))
+	{
+		projectBrowser_.Open();
+	}
 
 	projectBrowser_.Display();
 
@@ -76,7 +130,7 @@ void Editor::CreateProject()
 	if (projectBrowser_.HasSelected())
 	{
 		const String path(projectBrowser_.GetSelected().string().c_str());
-	
+
 		// save a open project before creating a new one
 		if (!project_->GetProjectFilePath().Empty() && !project_->GetProjectPath().Empty()) {
 			CROSS_LOGWARNING("There are already a Open Project. Saving the current open project... ");
@@ -94,13 +148,7 @@ void Editor::CreateProject()
 
 void Editor::LoadProject(const String& path)
 {
-}
-
-void Editor::CreateDefaultScene()
-{
-
-
-
+	// TODO
 }
 
 }

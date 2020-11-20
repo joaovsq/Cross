@@ -27,16 +27,20 @@ private:
 	void ImportAsset(StringHash eventType, VariantMap& eventData);
 	/// Process a key input
 	void HandleKeyDown(StringHash eventType, VariantMap& eventData);
-	
-	///
-	void CreateProject();
-	///
+
+	/// Creates the scene management menu
+	void SceneMenu();
+	/// Creates a new scene
+	void SaveScene();
+	/// Opens a existing scene  
+	void OpenScene(const String& filepath);
+
+	/// Creates a new project
+	void SaveProject();
+	/// Loads a existing project
 	void LoadProject(const String& path);
-	/// Create the default Editor Scene
-	void CreateDefaultScene();
 
 	SharedPtr<Project> project_;
-
 };
 
 }
